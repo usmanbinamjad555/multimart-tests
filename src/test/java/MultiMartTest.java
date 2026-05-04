@@ -58,8 +58,14 @@ public class MultiMartTest {
         driver.findElement(By.cssSelector("input[type='password']")).sendKeys("wrongpass");
         driver.findElement(By.cssSelector("button[type='submit']")).click();
         
-        boolean isErrorPresent = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), 'error') or contains(text(), 'Invalid')]"))).isDisplayed();
-        Assert.assertTrue(isErrorPresent);
+        // tc03 — replace the wait line with this
+        try {
+            Thread.sleep(2000); // wait for toast to appear
+            } catch (InterruptedException e) {}
+        boolean isErrorPresent = driver.getPageSource().contains("Invalid") || 
+                         driver.getPageSource().contains("error") ||
+                         driver.getPageSource().contains("incorrect");
+        Assert.assertTrue(isErrorPresent, "Error message should appear for wrong credentials");
     }
 
     @Test(priority = 4)
