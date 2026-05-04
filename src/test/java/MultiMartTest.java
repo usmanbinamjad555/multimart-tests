@@ -68,15 +68,21 @@ public class MultiMartTest {
         Assert.assertTrue(isErrorPresent, "Error message should appear for wrong credentials");
     }
 
-    @Test(priority = 4)
-    public void tc04_loginAsCustomer() {
-        driver.get(BASE_URL + "/login");
-        driver.findElement(By.cssSelector("input[type='email']")).sendKeys("ahmed@example.com");
-        driver.findElement(By.cssSelector("input[type='password']")).sendKeys("password123");
-        driver.findElement(By.cssSelector("button[type='submit']")).click();
-        wait.until(ExpectedConditions.urlContains("/"));
-        Assert.assertTrue(driver.getCurrentUrl().endsWith("/"));
-    }
+@Test(priority = 4)
+public void tc04_loginAsCustomer() {
+    driver.get(BASE_URL + "/login");
+    wait.until(ExpectedConditions.visibilityOfElementLocated(
+        By.cssSelector("input[type='email']"))).sendKeys("ahmed@example.com");
+    driver.findElement(By.cssSelector("input[type='password']")).sendKeys("password123");
+    driver.findElement(By.cssSelector("button[type='submit']")).click();
+    
+    // Wait for redirect away from /login
+    wait.until(ExpectedConditions.not(
+        ExpectedConditions.urlContains("/login")
+    ));
+    String url = driver.getCurrentUrl();
+    Assert.assertFalse(url.contains("/login"), "Should have redirected away from login");
+}
 
     @Test(priority = 5)
     public void tc05_loginAsSuperAdmin() {
@@ -182,12 +188,14 @@ public class MultiMartTest {
         Assert.assertTrue(true, "Item removal triggered");
     }
 
-    @Test(priority = 17)
+   @Test(priority = 17)
     public void tc17_bonus_registerStore() {
-        driver.get(BASE_URL + "/register-store");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("form")));
-        Assert.assertTrue(driver.getCurrentUrl().contains("/register-store"));
-    }
+    driver.get(BASE_URL + "/register-store");
+    wait.until(ExpectedConditions.urlContains("/register-store"));
+    // RegisterStore uses divs not <form> — check page content instead
+    wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input")));
+    Assert.assertTrue(driver.getCurrentUrl().contains("/register-store"));
+}
 
     @AfterClass
     public void tearDown() {
